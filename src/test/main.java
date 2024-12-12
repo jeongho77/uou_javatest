@@ -1,10 +1,10 @@
-package kiosk;
+package test;
 
 import kiosk.view.JFrameView;
-import kiosk.view.StartView;
 
 public class main {
+    // 메인 메서드
     public static void main(String[] args) {
-        new StartView();
+        new JFrameView(); // 프레임 실행
     }
 }

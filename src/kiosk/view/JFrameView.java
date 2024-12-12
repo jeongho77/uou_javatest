@@ -8,6 +8,8 @@ import kiosk.model.enums.Status;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +20,7 @@ public class JFrameView extends JFrame {
     JPanel containerPanel = new JPanel(new BorderLayout()); // 상위 패널에 BorderLayout 사용
 
     public JFrameView() {
-        setTitle("300x300 스윙 프레임 만들기");
+        setTitle("울산대학교 키오스크");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1000, 800); // 프레임 크기 설정
         setLayout(new BorderLayout()); // 레이아웃 설정 (헤더, 센터, 푸터 배치 가능)
@@ -26,43 +28,11 @@ public class JFrameView extends JFrame {
         setBackground(color);
 
         // 헤더, 센터, 푸터 추가
-        add(header(), BorderLayout.NORTH); // 헤더를 상단에 추가
+        add(new Header().header(), BorderLayout.NORTH); // 헤더를 상단에 추가
         add(createProductPanel(), BorderLayout.CENTER);
 //        add(createOrderPanel(), BorderLayout.EAST);
         Kiosk kisok = new Kiosk(Status.ACTIVE); //키오스크 시작
         setVisible(true); // 프레임 출력
-    }
-
-    //헤더 메소드
-    public JPanel header() {
-        JPanel header = new JPanel(new BorderLayout());
-        header.setPreferredSize(new Dimension(1000, 70)); // 헤더 크기 설정
-
-        Color color = new Color(14, 159, 104); // RGB 사용
-        header.setBackground(color); // 배경색 설정
-
-        JLabel title = new JLabel("Kiosk");
-        JLabel uni = new JLabel("울산대학교");
-        title.setFont(new Font("맑은 고딕", Font.BOLD, 30));
-        uni.setFont(new Font("맑은 고딕", Font.BOLD, 20));
-        title.setForeground(Color.WHITE); // 글자색 설정
-        uni.setForeground(Color.WHITE); // 글자색 설정
-
-        // 각각의 JLabel을 패널로 감싸기
-        JPanel leftPanel = new JPanel(new BorderLayout());
-        leftPanel.setBackground(color);
-        leftPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0)); // 왼쪽 여백 20px
-        leftPanel.add(uni, BorderLayout.CENTER);
-
-        JPanel rightPanel = new JPanel(new BorderLayout());
-        rightPanel.setBackground(color);
-        rightPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 20)); // 오른쪽 여백 20px
-        rightPanel.add(title, BorderLayout.CENTER);
-
-        header.add(leftPanel, BorderLayout.WEST);
-        header.add(rightPanel, BorderLayout.EAST);
-
-        return header;
     }
 
 
@@ -305,9 +275,32 @@ public class JFrameView extends JFrame {
 
                 // 결제 처리
                 if (option == JOptionPane.YES_OPTION) {
-                    JOptionPane.showMessageDialog(null, "결제가 완료되었습니다.");
-                    foodOrderKiosk.getOrders().clear(); // 주문 초기화
-                    updateOrderPanel(); // UI 갱신
+                    JDialog dialog = new JDialog();
+                    dialog.setTitle("Message");
+                    dialog.setModal(true); // 모달로 설정하지 않으면 자동으로 닫힘
+                    dialog.setSize(300, 150);
+                    dialog.setLocationRelativeTo(null); // 화면 중앙에 표시
+
+                    JLabel messageLabel = new JLabel(
+                            "<html><div style='text-align: center;'>결제가 완료되었습니다.<br>3초 후 초기 화면으로 이동합니다.</div></html>",
+                            SwingConstants.CENTER
+                    );
+                    dialog.add(messageLabel, BorderLayout.CENTER);
+
+                    // 타이머를 사용해 3초 후에 실행
+                    Timer timer = new Timer(3000, event -> {
+                        System.out.println("동작 완료");
+                        dialog.dispose(); // 메시지 창 닫기
+                        foodOrderKiosk.getOrders().clear(); // 주문 초기화
+                        updateOrderPanel(); // UI 갱신
+                        dispose(); // 현재 창 닫기
+                        new StartView(); // 새로운 화면 열기
+                    });
+
+                    timer.setRepeats(false); // 타이머를 한 번만 실행
+                    timer.start();
+                    dialog.setVisible(true);
+
                 } else if (option == JOptionPane.NO_OPTION) {
                     // 돌아가기: 아무 동작도 하지 않음
                 }
@@ -360,11 +353,4 @@ public class JFrameView extends JFrame {
         // 주문 패널 참조 업데이트
         orderPanel = updatedOrderPanel;
     }
-
-    // 메인 메서드
-    public static void main(String[] args) {
-        new JFrameView(); // 프레임 실행
-    }
-
-
 }

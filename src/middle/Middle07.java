@@ -4,7 +4,7 @@ package middle;
 import static jdk.nashorn.internal.objects.NativeRegExp.test;
 
 public class Middle07 {
-    public static void main(String[] args) {
+    public static void test.main(String[] args) {
         String name;
         String java = "2022-12-20";
 
